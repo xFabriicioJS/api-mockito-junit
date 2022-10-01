@@ -3,6 +3,7 @@ package br.com.fabricio.api.services;
 import java.util.List;
 
 import br.com.fabricio.api.domain.User;
+import br.com.fabricio.api.domain.dto.UserDTO;
 
 public interface UserService {
     
@@ -10,5 +11,6 @@ public interface UserService {
     
     List<User> findAll();
 
+    User create(UserDTO obj);
 
 }
