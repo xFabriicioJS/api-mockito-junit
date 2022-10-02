@@ -1,6 +1,5 @@
 package br.com.fabricio.api.domain;
 
-import javax.annotation.Generated;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -30,12 +29,7 @@ public class User{
     private String email;
     private String password;
     
-	public User(Integer id, String name, String email, String password) {
-		this.id = id;
-		this.name = name;
-		this.email = email;
-		this.password = password;
-	}
+	
 
 	public Integer getId() {
 		return id;
