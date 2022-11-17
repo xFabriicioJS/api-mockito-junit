@@ -169,12 +169,40 @@ class UserServiceImplTest {
         assertEquals(PASSWORD, response.getPassword());
     }
 
+    //Método que testa a exceção que pode ser lançada no "update"
+    @Test
+    void whenUpdateThenReturnAnDataIntegrityViolationException() {
+        //Mockando o método save do repository, que irá retornar um User
+        Mockito.when(repository.findByEmail(Mockito.anyString())).thenReturn(optionalUser);
+
+        //Vamos colocar um try/catch para capturar a exceção
+        try{
+            optionalUser.get().setId(2);
+            service.create(userDTO);
+        } catch (Exception ex){
+            assertEquals(DataIntegratyViolationException.class, ex.getClass());
+            assertEquals("Email já está cadastrado no sistema! Por favor insira um outro email.",
+                    ex.getMessage());
+        }
+    }
+
     @Test
     void findByEmail() {
     }
 
+    //Método que testa o delete, quando o delete é bem-sucedido.
     @Test
-    void delete() {
+    void deleteWithSuccess() {
+        Mockito.when(repository.findById(Mockito.anyInt())).thenReturn(optionalUser);
+        Mockito.doNothing().when(repository.findById(Mockito.anyInt()));
+
+        //Chamando o delete do service
+        service.delete(ID);
+
+        //Verificando e Assertando se o repository foi realmente chamado apenas uma única vez
+        Mockito.verify(repository, Mockito.times(1)).deleteById(Mockito.anyInt());
+
+
     }
 
     private void startUser(){
