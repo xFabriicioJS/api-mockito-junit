@@ -3,6 +3,7 @@ package br.com.fabricio.api.services.impl;
 import br.com.fabricio.api.domain.User;
 import br.com.fabricio.api.domain.dto.UserDTO;
 import br.com.fabricio.api.repositories.UserRepository;
+import br.com.fabricio.api.services.exceptions.DataIntegratyViolationException;
 import br.com.fabricio.api.services.exceptions.ObjectNotFoundException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -50,7 +51,7 @@ class UserServiceImplTest {
     }
 
 
-    //Testando o método findById, deve retornar uma instancia de User
+    //Testando o método findById, deve retornar uma instância de User
     @Test
     void whenFindByIdThenReturnAnUserInstance() {
         //Mockando uma resposta para quando o método findById do repository for chamado
@@ -61,10 +62,10 @@ class UserServiceImplTest {
         //Verificando se a minha resposta não é nula
         Assertions.assertNotNull(response);
 
-        //"Assertando" que a minha resposta que veio lá do meu service realmente pertence a classe Usuário (User)
+        //"Assertando" que a minha resposta que veio lá do meu service realmente pertence à classe Usuário (User)
         Assertions.assertEquals(User.class, response.getClass());
 
-        //Verificando se o id do meu objeto é realmente o id que passei como parâmetro
+        //Verificando se o "id" do meu objeto é realmente o "id" que passei como parâmetro
         Assertions.assertEquals(ID, response.getId());
 
         //Outras verificações
@@ -108,6 +109,23 @@ class UserServiceImplTest {
         assertEquals(EMAIL, response.getEmail());
         assertEquals(PASSWORD, response.getPassword());
     }
+    //Método que testa a exceção DataIntegrityViolationException que pode ser lançada ao criar
+    //um usuário que já possui um email na base de dados
+    @Test
+    void whenCreateThenReturnAnDataIntegrityViolationException() {
+        //Mockando o método save do repository, que irá retornar um User
+        Mockito.when(repository.findByEmail(Mockito.anyString())).thenReturn(optionalUser);
+
+        //Vamos colocar um try/catch para capturar a exceção
+        try{
+            optionalUser.get().setId(2);
+            service.create(userDTO);
+        } catch (Exception ex){
+            assertEquals(DataIntegratyViolationException.class, ex.getClass());
+            assertEquals("Email já está cadastrado no sistema! Por favor insira um outro email.",
+                    ex.getMessage());
+        }
+    }
 
     //Método que testa o método findAll
     @Test
@@ -134,8 +152,21 @@ class UserServiceImplTest {
         assertEquals(PASSWORD, response.get(0).getPassword());
     }
 
+    //Método que testa o método update
     @Test
-    void update() {
+    void whenUpdateThenReturnSuccess() {
+        //Mockando o método save do repository, que irá retornar um User
+        Mockito.when(repository.save(Mockito.any())).thenReturn(user);
+
+        //Passando um userDTO para o service, o nosso repository irá retornar um User
+        User response = service.update(userDTO);
+
+        assertNotNull(response);
+        assertEquals(User.class, response.getClass());
+        assertEquals(ID, response.getId());
+        assertEquals(NAME, response.getName());
+        assertEquals(EMAIL, response.getEmail());
+        assertEquals(PASSWORD, response.getPassword());
     }
 
     @Test
