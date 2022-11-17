@@ -3,6 +3,7 @@ package br.com.fabricio.api.services.impl;
 import br.com.fabricio.api.domain.User;
 import br.com.fabricio.api.domain.dto.UserDTO;
 import br.com.fabricio.api.repositories.UserRepository;
+import br.com.fabricio.api.services.exceptions.ObjectNotFoundException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -13,6 +14,7 @@ import org.mockito.MockitoAnnotations;
 import org.modelmapper.ModelMapper;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -71,12 +73,65 @@ class UserServiceImplTest {
 
     }
 
+    //método que testa a exceção de objeto não encontrado
     @Test
-    void create() {
+    void whenFindByIdThenReturnAnObjectNotFoundException(){
+        Mockito.when(repository.findById(Mockito.anyInt())).thenThrow(
+                new ObjectNotFoundException("Objeto não encontrado")
+        );
+
+        try{
+            service.findById(ID);
+        } catch (Exception ex){
+            //Verifique se a exceção lançada é da classe ObjectNotFoundException
+            assertEquals(ObjectNotFoundException.class, ex.getClass());
+            //Verificando se a mensagem que a exceção trará é a esperada
+            assertEquals("Objeto não encontrado", ex.getMessage());
+
+        }
     }
 
+
+    //Método que testa o método create
     @Test
-    void findAll() {
+    void whenCreateReturnSuccess() {
+        //Mockando o método save do repository, que irá retornar um User
+        Mockito.when(repository.save(Mockito.any())).thenReturn(user);
+
+        //Passando um userDTO para o service, o nosso repository irá retornar um User
+        User response = service.create(userDTO);
+
+        assertNotNull(response);
+        assertEquals(User.class, response.getClass());
+        assertEquals(ID, response.getId());
+        assertEquals(NAME, response.getName());
+        assertEquals(EMAIL, response.getEmail());
+        assertEquals(PASSWORD, response.getPassword());
+    }
+
+    //Método que testa o método findAll
+    @Test
+    void whenFindAllThenReturnAnListOfUsers() {
+        //Mockando o método findAll lá do repository, desse jeito o método findAll do repository só irá
+        //retornar um usuário para o SERVICE
+        Mockito.when(repository.findAll()).thenReturn(List.of(user));
+
+        //SERVICE
+        List<User> response = service.findAll();
+
+        //Assegurando que a resposta não será nula
+        assertNotNull(response);
+
+        //Assegurando que a lista só tenha um elemento
+        assertEquals(1, response.size());
+
+        //Assegurando que a classe do objeto da response seja User
+        assertEquals(User.class, response.get(0).getClass());
+
+        assertEquals(ID, response.get(0).getId());
+        assertEquals(NAME, response.get(0).getName());
+        assertEquals(EMAIL, response.get(0).getEmail());
+        assertEquals(PASSWORD, response.get(0).getPassword());
     }
 
     @Test
