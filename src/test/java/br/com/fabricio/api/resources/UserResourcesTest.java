@@ -124,11 +124,39 @@ class UserResourcesTest {
     }
 
     @Test
-    void update() {
+    void whenUpdateThenReturnSuccess() {
+        Mockito.when(service.update(userDTO)).thenReturn(user);
+
+        Mockito.when(mapper.map(Mockito.any(), Mockito.any())).thenReturn(userDTO);
+
+        ResponseEntity<UserDTO> response = resources.update(ID, userDTO);
+
+        Assertions.assertNotNull(response);
+        Assertions.assertNotNull(response.getBody());
+        Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
+        Assertions.assertEquals(ResponseEntity.class, response.getClass());
+        Assertions.assertEquals(UserDTO.class, response.getBody().getClass());
+
+        Assertions.assertEquals(ID, response.getBody().getId());
+        Assertions.assertEquals(NAME, response.getBody().getName());
+        Assertions.assertEquals(EMAIL, response.getBody().getEmail());
+
+
     }
 
     @Test
-    void delete() {
+    void whenDeleteThenReturnSuccess() {
+        Mockito.doNothing().when(service).delete(Mockito.anyInt());
+
+        ResponseEntity<UserDTO> response = resources.delete(ID);
+
+        Assertions.assertNotNull(response);
+        assertEquals(ResponseEntity.class, response.getClass());
+
+        //Assegurando que o método delete foi invocado apenas uma única vez
+        Mockito.verify(service, Mockito.times(1)).delete(Mockito.anyInt());
+
+        assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
     }
 
     private void startUser(){
