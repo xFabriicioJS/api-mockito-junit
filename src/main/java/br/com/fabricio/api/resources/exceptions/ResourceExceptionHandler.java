@@ -28,7 +28,7 @@ public class ResourceExceptionHandler {
 	// Exceçãi de violação na integridade de dados do banco
 	//Por ex: o cliente tenta cadastrar um usuário com um email já presente no banco de dados, então interceptamos essa exceção e jogamos um bad request.
 	@ExceptionHandler(DataIntegratyViolationException.class)
-	public ResponseEntity<StandardError> dataIntegratyException(DataIntegratyViolationException ex, HttpServletRequest request) {
+	public ResponseEntity<StandardError> dataIntegrityException(DataIntegratyViolationException ex, HttpServletRequest request) {
 		StandardError error = new StandardError(LocalDateTime.now(), HttpStatus.BAD_REQUEST.value(), ex.getMessage(), request.getRequestURI());
 		
 		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);

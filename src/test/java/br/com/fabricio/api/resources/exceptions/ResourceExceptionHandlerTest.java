@@ -1,5 +1,6 @@
 package br.com.fabricio.api.resources.exceptions;
 
+import br.com.fabricio.api.services.exceptions.DataIntegratyViolationException;
 import br.com.fabricio.api.services.exceptions.ObjectNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -43,6 +44,18 @@ class ResourceExceptionHandlerTest {
     }
 
     @Test
-    void dataIntegratyException() {
+    void dataIntegrityException() {
+        ResponseEntity<StandardError> response = exceptionHandler.dataIntegrityException(
+                new DataIntegratyViolationException("Email já cadastrado"),
+                new MockHttpServletRequest()
+        );
+
+        assertNotNull(response);
+        assertNotNull(response.getBody());
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        assertEquals(ResponseEntity.class, response.getClass());
+        assertEquals(StandardError.class, response.getBody().getClass());
+        assertEquals("Email já cadastrado", response.getBody().getError());
+        assertEquals(400, response.getBody().getStatus());
     }
 }
